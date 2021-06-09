@@ -113,7 +113,7 @@ func main() {
 	case "delete":
 		s.delete(key)
 	case "delete-all":
-		s.delete(key)
+		s.deleteAll(key)
 	case "copy":
 		if t != nil {
 			s.copy(key, t)
