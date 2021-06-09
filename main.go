@@ -1,13 +1,13 @@
 package main
 
 import (
-  "flag"
-  "fmt"
-  "github.com/syndtr/goleveldb/leveldb"
-  "github.com/syndtr/goleveldb/leveldb/util"
-  "os"
-  "path/filepath"
-  "time"
+	"flag"
+	"fmt"
+	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/util"
+	"os"
+	"path/filepath"
+	"time"
 )
 
 const (
@@ -40,38 +40,40 @@ func main() {
 	var target string
 	var key string
 	var value string
+	var test string
 	flag.StringVar(&action, "action", "", "action:get,put,copy,delete")
 	flag.StringVar(&source, "source", "", "源目录")
 	flag.StringVar(&target, "target", "", "目标目录")
 	flag.StringVar(&key, "key", "", "关键字")
 	flag.StringVar(&value, "value", "", "值")
+	flag.StringVar(&test, "test", "", "测试")
 	flag.Parse()
 
+	if source != "" {
+		source, err := filepath.Abs(source)
+		if err != nil {
+			fmt.Print(err)
+			return
+		}
 
-	if source !="" {
-    source,err := filepath.Abs(source)
-    if err != nil {
-      fmt.Print(err)
-      return
-    }
+		if !IsDir(source) {
+			fmt.Println("source目录不存在!!!")
+			return
+		}
 
-    if !IsDir(source) {
-      fmt.Println("source目录不存在!!!")
-      return
-    }
-  }
-  if target !="" {
-    target,err := filepath.Abs(target)
-    if err != nil {
-      fmt.Print(err)
-      return
-    }
+	}
+	if target != "" {
+		target, err := filepath.Abs(target)
+		if err != nil {
+			fmt.Print(err)
+			return
+		}
 
-    if !IsDir(target) {
-      fmt.Println("target目录不存在!!!")
-      return
-    }
-  }
+		if !IsDir(target) {
+			fmt.Println("target目录不存在!!!")
+			return
+		}
+	}
 	var s *store = nil
 	var t *store = nil
 	if source != "" {
@@ -91,6 +93,13 @@ func main() {
 		}
 
 	}()
+	if test == "1" {
+		fmt.Println("source:", source)
+		fmt.Println("target:", target)
+		fmt.Println("action:", action)
+		fmt.Println("key:", key)
+		fmt.Println("value:", value)
+	}
 
 	switch action {
 	case "query":
@@ -101,8 +110,8 @@ func main() {
 		s.Put(key, value)
 	case "delete":
 		s.delete(key)
-  case "delete-all":
-    s.delete(key)
+	case "delete-all":
+		s.delete(key)
 	case "copy":
 		if t != nil {
 			s.copy(key, t)
@@ -121,13 +130,14 @@ func main() {
 	//getSchemaName()
 
 }
+
 // 判断目录是否存在
-func IsDir(fileAddr string)bool{
-  s,err:=os.Stat(fileAddr)
-  if err!=nil{
-    return false
-  }
-  return s.IsDir()
+func IsDir(fileAddr string) bool {
+	s, err := os.Stat(fileAddr)
+	if err != nil {
+		return false
+	}
+	return s.IsDir()
 }
 func getStore(path string) *store {
 	db, err := leveldb.OpenFile(path, nil)
@@ -178,12 +188,11 @@ func (s *store) deleteAll(key string) {
 	iter.Release()
 }
 func (s *store) delete(key string) {
-  err := s.db.Delete([]byte(key),nil)
-  if err != nil {
-    fmt.Println("error", err)
-  }
+	err := s.db.Delete([]byte(key), nil)
+	if err != nil {
+		fmt.Println("error", err)
+	}
 }
-
 
 func (s *store) copy(key string, t *store) {
 	iter := s.db.NewIterator(util.BytesPrefix([]byte(key)), nil)
@@ -213,4 +222,3 @@ func toBytes(d interface{}) []byte {
 		return nil
 	}
 }
-
