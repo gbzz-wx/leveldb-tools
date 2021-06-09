@@ -108,6 +108,8 @@ func main() {
 		s.Get(key)
 	case "put":
 		s.Put(key, value)
+	case "put-all":
+		s.PutAll(key, value)
 	case "delete":
 		s.delete(key)
 	case "delete-all":
@@ -209,6 +211,17 @@ func (s *store) copy(key string, t *store) {
 
 func (s *store) Put(key, value interface{}) {
 	s.db.Put(toBytes(key), toBytes(value), nil)
+}
+func (s *store) PutAll(key string, value interface{}) {
+	iter := s.db.NewIterator(util.BytesPrefix([]byte(key)), nil)
+	for iter.Next() {
+		key := iter.Key()
+		value := iter.Value()
+		s.db.Put(toBytes(key), toBytes(value), nil)
+		fmt.Println(string(key) + ":" + string(toBytes(value)))
+	}
+	iter.Release()
+
 }
 
 func toBytes(d interface{}) []byte {
