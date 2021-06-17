@@ -41,7 +41,7 @@ func main() {
 	var key string
 	var value string
 	var test string
-	flag.StringVar(&action, "action", "", "action:get,put,copy,delete")
+	flag.StringVar(&action, "action", "", "action:get,put,copy,delete,delete-all, get-all,put-all")
 	flag.StringVar(&source, "source", "", "源目录")
 	flag.StringVar(&target, "target", "", "目标目录")
 	flag.StringVar(&key, "key", "", "关键字")
@@ -60,7 +60,6 @@ func main() {
 			fmt.Println("source目录不存在!!!")
 			return
 		}
-
 	}
 	if target != "" {
 		target, err := filepath.Abs(target)
@@ -68,7 +67,7 @@ func main() {
 			fmt.Print(err)
 			return
 		}
-
+		
 		if !IsDir(target) {
 			fmt.Println("target目录不存在!!!")
 			return
@@ -103,6 +102,7 @@ func main() {
 
 	switch action {
 	case "query":
+  case "get-all":
 		s.Query(key)
 	case "get":
 		s.Get(key)
@@ -122,14 +122,6 @@ func main() {
 		fmt.Println("未知操作")
 
 	}
-
-	//deleteData(lastIssuedChequeKeyPrefix)
-	//deleteData(totalIssuedKey)
-	//downData()
-	//copyData(chequebookKey)
-	//copyData(overlayKey)
-
-	//getSchemaName()
 
 }
 
